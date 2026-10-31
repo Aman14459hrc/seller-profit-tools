@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bulk Profit Calculator – Excel Upload</title>
+<meta name="description" content="Excel ya CSV upload karo aur ek saath saare products ka profit, margin aur break-even price nikalo. Meesho, Amazon, Flipkart sellers ke liye.">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root{
+    --bg:#f6f7fb; --card:#fff; --text:#1c2333; --muted:#6a7287; --line:#e3e6ef;
+    --brand:#4f46e5; --good:#0f9d58; --bad:#d93025; --warn:#b26a00;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#10131c; --card:#181c28; --text:#e8ebf5; --muted:#98a1b8; --line:#2a3043; --brand:#8b84ff; --good:#34c37a; --bad:#ff6b5e; --warn:#f0b04a; }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  .wrap{max-width:1100px;margin:0 auto;padding:16px}
+  h1{font-size:1.5rem;margin:8px 0 2px}
+  h2{font-size:1rem;margin:0 0 10px}
+  .sub{color:var(--muted);margin:0 0 16px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:16px}
+  .row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+  label{display:block;font-size:.85rem;color:var(--muted);margin:6px 0 4px}
+  input,select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--text);font-size:1rem}
+  .chk{display:flex;align-items:center;gap:8px;margin-top:22px}
+  .chk input{width:auto}
+  .chk label{margin:0;color:var(--text)}
+  button,.btn{padding:10px 16px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--text);cursor:pointer;font-size:.95rem}
+  .primary{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+  #drop{border:2px dashed var(--line);border-radius:12px;padding:26px;text-align:center;color:var(--muted);cursor:pointer}
+  #drop.over{border-color:var(--brand);color:var(--text)}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:12px}
+  .stat{background:var(--bg);border-radius:12px;padding:12px;text-align:center}
+  .stat .v{font-size:1.3rem;font-weight:700}
+  .stat .l{font-size:.8rem;color:var(--muted)}
+  .tw{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:.9rem;min-width:760px}
+  th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+  th:first-child,td:first-child{text-align:left}
+  th{background:var(--bg);position:sticky;top:0;cursor:pointer;user-select:none}
+  .good{color:var(--good)} .bad{color:var(--bad)}
+  .msg{padding:10px 12px;border-radius:8px;background:var(--bg);border-left:4px solid var(--warn);margin-top:10px;font-size:.9rem}
+  .small{color:var(--muted);font-size:.82rem}
+  a{color:var(--brand)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Bulk Profit Calculator</h1>
+  <p class="sub">Excel ya CSV upload karo, saare products ka profit ek saath dekho. <a href="index.html">Single product calculator</a></p>
+
+  <div class="card">
+    <h2>Step 1 – Default settings</h2>
+    <p class="small" style="margin-top:0">Jis column ko aap file mein khali chhodoge, wahan ye default values use hongi.</p>
+    <div class="row">
+      <div><label for="mp">Marketplace</label>
+        <select id="mp">
+          <option value="meesho">Meesho</option>
+          <option value="amazon">Amazon</option>
+          <option value="flipkart">Flipkart</option>
+          <option value="custom">Custom</option>
+        </select></div>
+      <div><label for="d_comm">Commission (%)</label><input id="d_comm" type="number" min="0" step="0.1"></div>
+      <div><label for="d_fixed">Fixed fee (₹)</label><input id="d_fixed" type="number" min="0" step="0.5"></div>
+      <div><label for="d_ship">Shipping fee (₹)</label><input id="d_ship" type="number" min="0" step="0.5"></div>
+      <div><label for="d_ret">Return rate (%)</label><input id="d_ret" type="number" min="0" max="100"></div>
+      <div><label for="d_retcost">Return loss (₹)</label><input id="d_retcost" type="number" min="0"></div>
+      <div><label for="d_pack">Packaging (₹)</label><input id="d_pack" type="number" min="0" value="12"></div>
+      <div><label for="d_ads">Ads / order (₹)</label><input id="d_ads" type="number" min="0" value="0"></div>
+      <div><label for="feegst">GST on fees (%)</label><input id="feegst" type="number" min="0" value="18"></div>
+      <div><label for="d_gst">Product GST (%)</label>
+        <select id="d_gst"><option>0</option><option>5</option><option selected>12</option><option>18</option><option>28</option></select></div>
+      <div class="chk"><input id="gstreg" type="checkbox"><label for="gstreg">GST registered hoon</label></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Step 2 – File upload karo</h2>
+    <div class="actions" style="margin:0 0 12px">
+      <button id="tpl" class="primary">Sample template download karo</button>
+    </div>
+    <div id="drop">Yahan file drop karo ya click karke chuno<br><span class="small">.xlsx, .xls ya .csv</span></div>
+    <input id="file" type="file" accept=".xlsx,.xls,.csv" hidden>
+    <div id="msg" class="msg" style="display:none"></div>
+    <p class="small">Zaroori columns: <b>Product Name, Selling Price, Cost</b>. Baaki optional hain: Packaging, Ads, Commission %, Fixed Fee, Shipping Fee, Return Rate %, Return Loss, GST %.</p>
+  </div>
+
+  <div class="card" id="results" style="display:none">
+    <h2>Result</h2>
+    <div class="stats" id="stats"></div>
+    <div class="actions" style="margin:0 0 12px">
+      <button id="dl" class="primary">Result Excel mein download karo</button>
+      <button id="onlyloss">Sirf loss wale dikhao</button>
+    </div>
+    <div class="tw"><table id="tbl"></table></div>
+    <p class="small">Header par click karke sort karo.</p>
+  </div>
+
+  <p class="small" style="text-align:center">Aapki file sirf aapke browser mein process hoti hai, kahin upload nahi hoti. Fees sirf estimate hain, apne seller panel se verify karo.</p>
+</div>
+
+<script>
+// Free version mein ek baar mein kitni rows allow hongi. Badi sankhya daalo ya hata do to limit khatam.
+const FREE_ROW_LIMIT = 25;
+
+const PRESETS = {
+  meesho:  {comm:0,  fixed:0,  ship:65, ret:20, retcost:65},
+  amazon:  {comm:10, fixed:20, ship:65, ret:10, retcost:80},
+  flipkart:{comm:8,  fixed:15, ship:60, ret:10, retcost:75},
+  custom:  {comm:0,  fixed:0,  ship:0,  ret:0,  retcost:0}
+};
+
+// Header ke alag-alag naam samajhne ke liye
+const ALIASES = {
+  name:    ["productname","product","name","title","sku","item","itemname"],
+  sp:      ["sellingprice","price","sp","saleprice","mrp"],
+  cost:    ["cost","costprice","purchaseprice","buyprice","cp","productcost"],
+  pack:    ["packaging","packagingcost","pack","packing"],
+  ads:     ["ads","adcost","adsperorder","advertising"],
+  comm:    ["commission","commissionpercent","commission%","comm"],
+  fixed:   ["fixedfee","closingfee","fixed"],
+  ship:    ["shippingfee","shipping","shippingcharge","delivery"],
+  ret:     ["returnrate","returnratepercent","returnrate%","returns","return"],
+  retcost: ["returnloss","returncost","returnlossamount"],
+  gst:     ["gst","gstpercent","gst%","gstrate","taxrate"]
+};
+
+const $ = id => document.getElementById(id);
+const num = id => Math.max(0, parseFloat($(id).value) || 0);
+const inr = v => (v < 0 ? "-₹" : "₹") + Math.abs(v).toLocaleString("en-IN", {maximumFractionDigits:2, minimumFractionDigits:2});
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const norm = s => String(s).toLowerCase().replace(/[^a-z0-9%]/g, "");
+
+let rows = [];       // computed results
+let sortKey = "profit", sortDir = 1, lossOnly = false;
+
+function applyPreset(){
+  const p = PRESETS[$("mp").value];
+  $("d_comm").value = p.comm; $("d_fixed").value = p.fixed; $("d_ship").value = p.ship;
+  $("d_ret").value = p.ret; $("d_retcost").value = p.retcost;
+}
+
+function showMsg(t, isErr){
+  const m = $("msg"); m.style.display = t ? "block" : "none"; m.textContent = t || "";
+  m.style.borderLeftColor = isErr ? "var(--bad)" : "var(--warn)";
+}
+
+// "" ya blank ho to default; warna number. Galat text ho to null.
+function pick(v, dflt){
+  if (v === undefined || v === null || String(v).trim() === "") return dflt;
+  const x = parseFloat(String(v).replace(/[₹,%\s,]/g, ""));
+  return isNaN(x) ? null : Math.max(0, x);
+}
+
+function compute(r){
+  const feeGst = num("feegst")/100;
+  const reg = $("gstreg").checked;
+  const g = reg ? r.gst/100 : 0;
+  const fees = r.sp*(r.comm/100) + r.fixed + r.ship;
+  const feesGst = fees*feeGst;
+  const gstPay = g ? Math.max((r.sp - r.cost) * g/(1+g), 0) : 0;
+  const net = r.sp - fees - feesGst - r.cost - r.pack - gstPay;
+  const rr = Math.min(r.ret,100)/100;
+  const profit = (1-rr)*net - rr*(r.retcost + r.pack) - r.ads;
+  // break-even price (bisection)
+  const at = p => { const f = p*(r.comm/100)+r.fixed+r.ship, fg=f*feeGst, gp = g?Math.max((p-r.cost)*g/(1+g),0):0;
+    const n = p-f-fg-r.cost-r.pack-gp; return (1-rr)*n - rr*(r.retcost+r.pack) - r.ads; };
+  let lo=0, hi=1e6, be=null;
+  if (at(hi) >= 0){ for(let i=0;i<60;i++){ const m=(lo+hi)/2; at(m)>=0 ? hi=m : lo=m; } be = Math.ceil(hi); }
+  return {profit, margin: r.sp ? profit/r.sp*100 : 0, fees: fees+feesGst, be};
+}
+
+function process(json){
+  if (!json.length){ showMsg("File khali lag rahi hai.", true); return; }
+  const header = Object.keys(json[0]);
+  const map = {};
+  for (const key in ALIASES){
+    map[key] = header.find(h => ALIASES[key].includes(norm(h)));
+  }
+  const missing = ["name","sp","cost"].filter(k => !map[k]);
+  if (missing.length){
+    const nm = {name:"Product Name", sp:"Selling Price", cost:"Cost"};
+    showMsg("In zaroori columns ka header nahi mila: " + missing.map(k => nm[k]).join(", ") + ". Template download karke use karo.", true);
+    return;
+  }
+
+  let notes = [];
+  let data = json;
+  if (data.length > FREE_ROW_LIMIT){
+    notes.push("Free version mein pehli " + FREE_ROW_LIMIT + " rows hi process hui hain (aapki file mein " + data.length + " rows hain).");
+    data = data.slice(0, FREE_ROW_LIMIT);
+  }
+
+  const d = {
+    comm:num("d_comm"), fixed:num("d_fixed"), ship:num("d_ship"), ret:num("d_ret"), retcost:num("d_retcost"),
+    pack:num("d_pack"), ads:num("d_ads"), gst:parseFloat($("d_gst").value)
+  };
+
+  rows = []; let skipped = 0;
+  data.forEach((raw, i) => {
+    const g = k => map[k] ? raw[map[k]] : undefined;
+    const sp = pick(g("sp"), null), cost = pick(g("cost"), null);
+    if (sp === null || cost === null || sp === 0){ skipped++; return; }
+    const r = {
+      name: String(g("name") ?? ("Row " + (i+2))).trim() || ("Row " + (i+2)),
+      sp, cost,
+      pack:pick(g("pack"), d.pack), ads:pick(g("ads"), d.ads),
+      comm:pick(g("comm"), d.comm), fixed:pick(g("fixed"), d.fixed), ship:pick(g("ship"), d.ship),
+      ret:pick(g("ret"), d.ret), retcost:pick(g("retcost"), d.retcost), gst:pick(g("gst"), d.gst)
+    };
+    if (Object.values(r).some(v => v === null)){ skipped++; return; }
+    rows.push(Object.assign(r, compute(r)));
+  });
+
+  if (skipped) notes.push(skipped + " row(s) skip hui kyunki price ya cost galat ya khali tha.");
+  showMsg(notes.join(" "), false);
+  if (!rows.length){ $("results").style.display = "none"; return; }
+  lossOnly = false; $("onlyloss").textContent = "Sirf loss wale dikhao";
+  sortKey = "profit"; sortDir = 1;
+  render();
+}
+
+function render(){
+  $("results").style.display = "block";
+  const total = rows.reduce((a,r)=>a+r.profit,0);
+  const losers = rows.filter(r => r.profit < 0).length;
+  const best = rows.reduce((a,r)=> r.profit > a.profit ? r : a, rows[0]);
+  const avgM = rows.reduce((a,r)=>a+r.margin,0)/rows.length;
+  $("stats").innerHTML =
+    stat(rows.length, "Products") +
+    stat(inr(total), "Total profit (1 order each)", total>=0?"good":"bad") +
+    stat(avgM.toFixed(1)+"%", "Average margin") +
+    stat(losers, "Loss wale products", losers?"bad":"good") +
+    stat(esc(best.name), "Sabse zyada profit");
+
+  const cols = [["name","Product"],["sp","Price"],["cost","Cost"],["fees","Fees+GST"],["profit","Profit"],["margin","Margin"],["be","Break-even"]];
+  let view = rows.filter(r => !lossOnly || r.profit < 0);
+  view = view.slice().sort((a,b)=> {
+    const x=a[sortKey], y=b[sortKey];
+    return (typeof x === "string" ? x.localeCompare(y) : ((x??Infinity)-(y??Infinity))) * sortDir;
+  });
+  $("tbl").innerHTML =
+    "<tr>" + cols.map(c => `<th data-k="${c[0]}">${c[1]}${sortKey===c[0] ? (sortDir>0?" ▲":" ▼") : ""}</th>`).join("") + "</tr>" +
+    view.map(r => `<tr><td>${esc(r.name)}</td><td>${inr(r.sp)}</td><td>${inr(r.cost)}</td><td>${inr(r.fees)}</td>` +
+      `<td class="${r.profit>=0?"good":"bad"}">${inr(r.profit)}</td><td class="${r.margin>=0?"good":"bad"}">${r.margin.toFixed(1)}%</td>` +
+      `<td>${r.be===null ? "–" : inr(r.be)}</td></tr>`).join("");
+  document.querySelectorAll("#tbl th").forEach(th => th.onclick = () => {
+    const k = th.dataset.k; sortDir = (sortKey===k) ? -sortDir : 1; sortKey = k; render();
+  });
+}
+const stat = (v,l,c="") => `<div class="stat"><div class="v ${c}">${v}</div><div class="l">${l}</div></div>`;
+
+function readFile(f){
+  if (!f) return;
+  if (typeof XLSX === "undefined"){ showMsg("Excel library load nahi hui. Internet check karke page refresh karo.", true); return; }
+  const rd = new FileReader();
+  rd.onerror = () => showMsg("File padh nahi paaye.", true);
+  rd.onload = e => {
+    try {
+      const wb = XLSX.read(e.target.result, {type:"array"});
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      process(XLSX.utils.sheet_to_json(ws, {defval:""}));
+    } catch(err){ showMsg("Ye file khul nahi payi. Valid .xlsx ya .csv use karo.", true); }
+  };
+  rd.readAsArrayBuffer(f);
+}
+
+function downloadTemplate(){
+  const sample = [
+    {"Product Name":"Cotton Kurti Blue","Selling Price":499,"Cost":250,"Packaging":12,"Ads":0,"Commission %":"","Fixed Fee":"","Shipping Fee":"","Return Rate %":"","Return Loss":"","GST %":""},
+    {"Product Name":"Steel Water Bottle","Selling Price":349,"Cost":180,"Packaging":15,"Ads":10,"Commission %":"","Fixed Fee":"","Shipping Fee":"","Return Rate %":"","Return Loss":"","GST %":18},
+    {"Product Name":"Phone Stand","Selling Price":199,"Cost":90,"Packaging":8,"Ads":0,"Commission %":"","Fixed Fee":"","Shipping Fee":"","Return Rate %":"","Return Loss":"","GST %":""}
+  ];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(sample), "Products");
+  XLSX.writeFile(wb, "profit-calculator-template.xlsx");
+}
+
+function downloadResults(){
+  const out = rows.map(r => ({
+    "Product Name": r.name, "Selling Price": r.sp, "Cost": r.cost, "Packaging": r.pack, "Ads": r.ads,
+    "Commission %": r.comm, "Fixed Fee": r.fixed, "Shipping Fee": r.ship, "Return Rate %": r.ret,
+    "Return Loss": r.retcost, "GST %": r.gst,
+    "Fees + GST on fees": +r.fees.toFixed(2), "Profit per order": +r.profit.toFixed(2),
+    "Margin %": +r.margin.toFixed(1), "Break-even price": r.be === null ? "" : r.be
+  }));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(out), "Results");
+  XLSX.writeFile(wb, "profit-results.xlsx");
+}
+
+// events
+const drop = $("drop"), fileIn = $("file");
+drop.onclick = () => fileIn.click();
+fileIn.onchange = () => readFile(fileIn.files[0]);
+["dragenter","dragover"].forEach(ev => drop.addEventListener(ev, e => {e.preventDefault(); drop.classList.add("over");}));
+["dragleave","drop"].forEach(ev => drop.addEventListener(ev, e => {e.preventDefault(); drop.classList.remove("over");}));
+drop.addEventListener("drop", e => readFile(e.dataTransfer.files[0]));
+$("tpl").onclick = () => typeof XLSX === "undefined" ? showMsg("Excel library load nahi hui. Internet check karo.", true) : downloadTemplate();
+$("dl").onclick = downloadResults;
+$("onlyloss").onclick = () => { lossOnly = !lossOnly; $("onlyloss").textContent = lossOnly ? "Sab dikhao" : "Sirf loss wale dikhao"; render(); };
+$("mp").onchange = applyPreset;
+applyPreset();
+</script>
+</body>
+</html>

@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Seller Profit Tools – Meesho, Amazon, Flipkart</title>
+<meta name="description" content="Meesho, Amazon aur Flipkart sellers ke liye free profit calculator. Ek product ka profit nikalo ya Excel upload karke saare products ek saath check karo.">
+<style>
+  :root{
+    --bg:#f6f7fb; --card:#fff; --text:#1c2333; --muted:#6a7287; --line:#e3e6ef;
+    --brand:#4f46e5; --good:#0f9d58; --bad:#d93025; --warn:#b26a00;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#10131c; --card:#181c28; --text:#e8ebf5; --muted:#98a1b8; --line:#2a3043; --brand:#8b84ff; --good:#34c37a; --bad:#ff6b5e; --warn:#f0b04a; }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  .wrap{max-width:900px;margin:0 auto;padding:20px 16px}
+  header{text-align:center;padding:18px 0 8px}
+  h1{font-size:1.8rem;line-height:1.25;margin:0 0 8px}
+  .lead{color:var(--muted);margin:0 auto;max-width:620px}
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:24px 0}
+  @media (max-width:720px){.cards{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;display:flex;flex-direction:column}
+  .tag{font-size:.75rem;font-weight:600;color:var(--brand);text-transform:uppercase;letter-spacing:.04em}
+  .card h2{font-size:1.2rem;margin:4px 0 6px}
+  .card p{margin:0 0 10px}
+  .card h3{font-size:.9rem;margin:12px 0 4px}
+  .card ul{margin:0 0 14px;padding-left:20px;color:var(--text)}
+  .card li{margin:3px 0}
+  .btn{display:block;text-align:center;margin-top:auto;padding:12px 16px;border-radius:10px;background:var(--brand);color:#fff;text-decoration:none;font-weight:600}
+  .btn.alt{background:transparent;color:var(--brand);border:2px solid var(--brand)}
+  section.block{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;margin-bottom:16px}
+  section.block h2{font-size:1.1rem;margin:0 0 10px}
+  table{width:100%;border-collapse:collapse;font-size:.93rem}
+  th,td{padding:9px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  th{color:var(--muted);font-weight:600;font-size:.82rem}
+  tr:last-child td{border-bottom:none}
+  .feat{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media (max-width:720px){.feat{grid-template-columns:1fr}}
+  .feat div{background:var(--bg);border-radius:12px;padding:12px 14px}
+  .feat b{display:block;margin-bottom:2px}
+  .feat span{color:var(--muted);font-size:.9rem}
+  .steps{margin:0;padding-left:20px}
+  .steps li{margin:6px 0}
+  .note{color:var(--warn);font-size:.85rem;margin:0}
+  footer{color:var(--muted);font-size:.8rem;text-align:center;margin:20px 0 8px}
+  @media (max-width:560px){ .wide{display:none} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Kya aapko asli profit pata hai?</h1>
+    <p class="lead">Marketplace ki fees, GST, shipping aur returns ke baad aapke product par kitna bachta hai, yahan se free mein nikalo.</p>
+  </header>
+
+  <div class="cards">
+    <div class="card">
+      <span class="tag">Ek product</span>
+      <h2>Single Calculator</h2>
+      <p>Ek product ka poora hisaab, step by step.</p>
+      <h3>Kab use karein</h3>
+      <ul>
+        <li>Naya product list karne se pehle price decide karna ho</li>
+        <li>Pata karna ho ki minimum kitna price rakhun to loss na ho</li>
+        <li>Kisi ek product ka fee breakdown samajhna ho</li>
+      </ul>
+      <h3>Kaise use karein</h3>
+      <ul>
+        <li>Price aur cost daalo</li>
+        <li>Marketplace chuno, fees apne aap bhar jati hain</li>
+        <li>Profit, break-even price aur target price turant dikhta hai</li>
+      </ul>
+      <a class="btn" href="unit.html">Ek product check karo</a>
+    </div>
+
+    <div class="card">
+      <span class="tag">Bahut saare products</span>
+      <h2>Bulk Calculator</h2>
+      <p>Excel ya CSV upload karo, saare products ek saath check karo.</p>
+      <h3>Kab use karein</h3>
+      <ul>
+        <li>Aapke paas 10-25 ya zyada products hain</li>
+        <li>Pata karna ho ki kaunsa product loss de raha hai</li>
+        <li>Price list ek saath update karni ho</li>
+      </ul>
+      <h3>Kaise use karein</h3>
+      <ul>
+        <li>Template download karo aur products bharo</li>
+        <li>File upload karo</li>
+        <li>Table sort karo aur result Excel mein download karo</li>
+      </ul>
+      <a class="btn alt" href="bulk-cal.html">Excel upload karo</a>
+    </div>
+  </div>
+
+  <section class="block">
+    <h2>Hamara kya alag hai</h2>
+    <p style="margin-top:0;color:var(--muted)">Zyadatar calculator sirf ek profit number dete hain. Hum ye bhi batate hain ki paisa kahan gaya aur aapka product kitna risk jhel sakta hai.</p>
+    <div class="feat">
+      <div><b>Return-adjusted profit</b><span>Profit mein returns ka expected nuksaan pehle se joda hota hai, sirf delivered order ka nahi.</span></div>
+      <div><b>Kitne returns tak safe</b><span>Aapka product kitne % returns tak profit mein rahega, ye ek number mein dikhta hai. Saath mein 0% se 50% tak ka stress test.</span></div>
+      <div><b>"Paisa kahan gaya?" bar</b><span>Selling price ka har rupaya dikhta hai: cost, fees, GST, returns, ads aur aapka profit.</span></div>
+      <div><b>Price ladder</b><span>Price 5%, 10% ya 20% badhane-ghatane par profit aur margin kitna badlega, ek table mein.</span></div>
+      <div><b>Excel bulk check</b><span>Poora catalog upload karo, loss wale products pehle dekho, aur result Excel mein download karo.</span></div>
+      <div><b>Hinglish, bina login, bina data bheje</b><span>Account nahi banana. Aapka data sirf aapke browser mein rehta hai.</span></div>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2>Dono mein difference</h2>
+    <table>
+      <tr><th></th><th>Single</th><th>Bulk</th></tr>
+      <tr><td>Input</td><td>Form mein type karo</td><td>Excel / CSV file</td></tr>
+      <tr><td>Result</td><td>Poora breakdown aur tips</td><td>Har product ki ek line</td></tr>
+      <tr><td>Extra</td><td>Target price, monthly profit</td><td>Sort, loss filter, Excel download</td></tr>
+      <tr><td class="wide">Best for</td><td>Pricing decision</td><td>Catalog check</td></tr>
+    </table>
+  </section>
+
+  <section class="block">
+    <h2>Shuruaat kaise karein</h2>
+    <ol class="steps">
+      <li>Pehle <b>Single Calculator</b> par apne ek product ka numbers daalke dekho.</li>
+      <li>Marketplace ke default fees apne <b>seller panel ke latest charges</b> se badal do.</li>
+      <li>Jab kaam samajh aa jaye, <b>Bulk Calculator</b> mein apna poora catalog daalo aur loss wale products dhundo.</li>
+    </ol>
+    <p class="note" style="margin-top:12px">Ye tools estimate dete hain. Fees weight, category aur time ke hisaab se badalti hain, isliye hamesha apne seller panel se verify karo.</p>
+  </section>
+
+  <footer>Free tool • Aapka data sirf aapke browser mein rehta hai, kahin save ya send nahi hota.</footer>
+</div>
+</body>
+</html>

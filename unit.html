@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Seller Profit Calculator – Meesho, Amazon, Flipkart</title>
+<meta name="description" content="Meesho, Amazon aur Flipkart sellers ke liye free profit calculator. Fees, GST, shipping aur returns ke baad asli profit aur break-even price jaano.">
+<style>
+  :root{
+    --bg:#f6f7fb; --card:#fff; --text:#1c2333; --muted:#6a7287; --line:#e3e6ef;
+    --brand:#4f46e5; --good:#0f9d58; --bad:#d93025; --warn:#b26a00;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#10131c; --card:#181c28; --text:#e8ebf5; --muted:#98a1b8; --line:#2a3043; --brand:#8b84ff; --good:#34c37a; --bad:#ff6b5e; --warn:#f0b04a; }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  .wrap{max-width:980px;margin:0 auto;padding:16px}
+  h1{font-size:1.5rem;margin:8px 0 2px}
+  .sub{color:var(--muted);margin:0 0 16px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media (max-width:760px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+  .card h2{font-size:1rem;margin:0 0 12px}
+  label{display:block;font-size:.85rem;color:var(--muted);margin:10px 0 4px}
+  input,select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--text);font-size:1rem}
+  input:focus,select:focus{outline:2px solid var(--brand);border-color:transparent}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .chk{display:flex;align-items:center;gap:8px;margin-top:12px;color:var(--text);font-size:.95rem}
+  .chk input{width:auto}
+  .big{text-align:center;padding:14px 8px;border-radius:12px;background:var(--bg);margin-bottom:12px}
+  .big .v{font-size:2rem;font-weight:700}
+  .big .l{color:var(--muted);font-size:.85rem}
+  .good{color:var(--good)} .bad{color:var(--bad)}
+  table{width:100%;border-collapse:collapse;font-size:.92rem}
+  td{padding:7px 0;border-bottom:1px solid var(--line)}
+  td:last-child{text-align:right;font-variant-numeric:tabular-nums}
+  tr.total td{font-weight:700;border-bottom:none;padding-top:10px}
+  .tip{background:var(--bg);border-left:4px solid var(--brand);padding:10px 12px;border-radius:8px;margin-top:12px;font-size:.9rem}
+  .note{color:var(--warn);font-size:.82rem;margin-top:12px}
+  footer{color:var(--muted);font-size:.8rem;margin:20px 0 8px;text-align:center}
+  .bar{display:flex;height:34px;border-radius:10px;overflow:hidden;background:var(--bg);border:1px solid var(--line)}
+  .bar div{height:100%;min-width:2px}
+  .legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:6px 14px;margin-top:12px;font-size:.88rem}
+  .legend span.dot{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px}
+  .legend div{display:flex;justify-content:space-between;gap:8px;border-bottom:1px solid var(--line);padding:3px 0}
+  .insights{margin-top:16px;display:grid;gap:16px}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media (max-width:760px){.two{grid-template-columns:1fr}}
+  .cur td{font-weight:700;background:var(--bg)}
+  .tb td,.tb th{padding:7px 6px;text-align:right}
+  .tb td:first-child,.tb th:first-child{text-align:left}
+  .tb th{color:var(--muted);font-size:.8rem;font-weight:600;border-bottom:1px solid var(--line)}
+  .big2{font-size:1.5rem;font-weight:700}
+  button{padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--text);cursor:pointer;font-size:.9rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Seller Profit Calculator</h1>
+  <p class="sub">Meesho, Amazon, Flipkart – fees, GST, shipping aur returns ke baad asli profit jaano. <a href="bulk.html" style="color:var(--brand)">Bahut saare products? Bulk calculator</a> · <a href="index.html" style="color:var(--brand)">Home</a></p>
+
+  <div class="grid">
+    <div class="card">
+      <h2>Product ki details</h2>
+
+      <label for="mp">Marketplace</label>
+      <select id="mp">
+        <option value="meesho">Meesho</option>
+        <option value="amazon">Amazon</option>
+        <option value="flipkart">Flipkart</option>
+        <option value="custom">Custom / Apna</option>
+      </select>
+
+      <div class="row">
+        <div><label for="sp">Selling price (₹)</label><input id="sp" type="number" min="0" value="499"></div>
+        <div><label for="cost">Product cost (₹)</label><input id="cost" type="number" min="0" value="250"></div>
+      </div>
+      <div class="row">
+        <div><label for="pack">Packaging (₹)</label><input id="pack" type="number" min="0" value="12"></div>
+        <div><label for="ads">Ads / order (₹)</label><input id="ads" type="number" min="0" value="0"></div>
+      </div>
+
+      <h2 style="margin-top:18px">Marketplace charges <small style="color:var(--muted);font-weight:400">(apne seller panel se check karo)</small></h2>
+      <div class="row">
+        <div><label for="comm">Commission (%)</label><input id="comm" type="number" min="0" step="0.1"></div>
+        <div><label for="fixed">Fixed / closing fee (₹)</label><input id="fixed" type="number" min="0" step="0.5"></div>
+      </div>
+      <div class="row">
+        <div><label for="ship">Shipping fee (₹)</label><input id="ship" type="number" min="0" step="0.5"></div>
+        <div><label for="ret">Return rate (%)</label><input id="ret" type="number" min="0" max="100" step="1"></div>
+      </div>
+      <div class="row">
+        <div><label for="retcost">Har return par extra loss (₹)</label><input id="retcost" type="number" min="0" step="1"></div>
+        <div><label for="feegst">GST on fees (%)</label><input id="feegst" type="number" min="0" step="1" value="18"></div>
+      </div>
+
+      <div class="chk"><input id="gstreg" type="checkbox"><label for="gstreg" style="margin:0;color:var(--text)">Main GST registered hoon</label></div>
+      <div id="gstbox" style="display:none">
+        <label for="gstrate">Product par GST (%)</label>
+        <select id="gstrate"><option>0</option><option>5</option><option selected>12</option><option>18</option><option>28</option></select>
+      </div>
+
+      <h2 style="margin-top:18px">Target</h2>
+      <div class="row">
+        <div><label for="target">Chahiye profit / order (₹)</label><input id="target" type="number" min="0" value="80"></div>
+        <div><label for="qty">Mahine mein orders</label><input id="qty" type="number" min="0" value="200"></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <div class="big"><div class="v" id="profit">–</div><div class="l">Expected profit per order</div></div>
+        <div class="row">
+          <div class="big"><div class="v" id="margin" style="font-size:1.4rem">–</div><div class="l">Margin (selling price par)</div></div>
+          <div class="big"><div class="v" id="roi" style="font-size:1.4rem">–</div><div class="l">ROI (cost par)</div></div>
+        </div>
+        <table id="break"></table>
+        <div class="tip" id="tips"></div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h2>Price guide</h2>
+        <table>
+          <tr><td>Break-even price (zero profit)</td><td id="be">–</td></tr>
+          <tr><td>Price for your target profit</td><td id="tp">–</td></tr>
+          <tr class="total"><td>Monthly profit (orders × profit)</td><td id="monthly">–</td></tr>
+        </table>
+        <p class="note">Ye ek estimate hai. Fees weight, category aur time ke hisaab se badalti hain, isliye apne seller panel ke latest charges daalo. Sample values sirf shuruaat ke liye hain.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="insights">
+    <div class="card">
+      <h2>Paisa kahan gaya?</h2>
+      <p class="sub" style="margin-bottom:10px">Aapke selling price ka har rupaya kahan ja raha hai.</p>
+      <div class="bar" id="flowbar"></div>
+      <div class="legend" id="flowlegend"></div>
+      <p class="note" id="flownote" style="display:none"></p>
+    </div>
+
+    <div class="two">
+      <div class="card">
+        <h2>Return rate stress test</h2>
+        <p class="sub" style="margin-bottom:8px">Returns badhne par aapka profit kitna girta hai.</p>
+        <div class="big2" id="berr">–</div>
+        <div class="sub" id="berrnote" style="margin-bottom:10px"></div>
+        <table class="tb" id="stress"></table>
+      </div>
+      <div class="card">
+        <h2>Price ladder</h2>
+        <p class="sub" style="margin-bottom:8px">Price thoda badhao ya ghatao, to profit kitna badlega.</p>
+        <table class="tb" id="ladder"></table>
+      </div>
+    </div>
+  </div>
+
+  <footer>Free tool • Aapka data sirf aapke browser mein rehta hai, kahin save ya send nahi hota.</footer>
+</div>
+
+<script>
+const PRESETS = {
+  meesho:  {comm:0,  fixed:0,  ship:65, ret:20, retcost:65},
+  amazon:  {comm:10, fixed:20, ship:65, ret:10, retcost:80},
+  flipkart:{comm:8,  fixed:15, ship:60, ret:10, retcost:75},
+  custom:  {comm:0,  fixed:0,  ship:0,  ret:0,  retcost:0}
+};
+const $ = id => document.getElementById(id);
+const n = id => Math.max(0, parseFloat($(id).value) || 0);
+const inr = v => (v < 0 ? "-₹" : "₹") + Math.abs(v).toLocaleString("en-IN", {maximumFractionDigits: 2, minimumFractionDigits: 2});
+const KEY = "seller-calc-v1";
+
+function applyPreset(){
+  const p = PRESETS[$("mp").value];
+  for (const k in p) $(k).value = p[k];
+}
+
+// Profit for one dispatched order at a given selling price.
+function calc(sp, rOv){
+  const cost = n("cost"), pack = n("pack"), ads = n("ads");
+  const comm = n("comm")/100, fixed = n("fixed"), ship = n("ship");
+  const r = (rOv !== undefined ? rOv : Math.min(n("ret"),100)/100), retcost = n("retcost");
+  const feeGst = n("feegst")/100;
+  const reg = $("gstreg").checked;
+  const g = reg ? parseFloat($("gstrate").value)/100 : 0;
+
+  const fees = sp*comm + fixed + ship;
+  const feesGst = fees*feeGst;
+  // GST collected on sale minus input credit on purchase (both assumed at the same rate)
+  const gstPayable = g ? (sp - cost) * g/(1+g) : 0;
+  const netOnDelivered = sp - fees - feesGst - cost - pack - Math.max(gstPayable, 0);
+  const returnLoss = retcost + pack;
+  const profit = (1-r)*netOnDelivered - r*returnLoss - ads;
+
+  return {sp, fees, feesGst, gstPayable: Math.max(gstPayable,0), cost, pack, ads, r, returnLoss, netOnDelivered, profit};
+}
+
+// Find lowest price giving at least `goal` profit (profit grows with price).
+function priceFor(goal){
+  let lo = 0, hi = 1e6;
+  if (calc(hi).profit < goal) return null;
+  for (let i=0;i<60;i++){
+    const mid = (lo+hi)/2;
+    (calc(mid).profit >= goal) ? hi = mid : lo = mid;
+  }
+  return Math.ceil(hi);
+}
+
+function render(){
+  $("gstbox").style.display = $("gstreg").checked ? "block" : "none";
+  const sp = n("sp");
+  const c = calc(sp);
+  const cap = c.cost + c.pack;
+
+  const pe = $("profit");
+  pe.textContent = inr(c.profit);
+  pe.className = "v " + (c.profit >= 0 ? "good" : "bad");
+  $("margin").textContent = sp ? (c.profit/sp*100).toFixed(1) + "%" : "–";
+  $("roi").textContent = c.cost ? (c.profit/(c.cost+c.pack)*100).toFixed(0) + "%" : "–";
+
+  const rows = [
+    ["Selling price", inr(sp)],
+    ["– Marketplace fees (commission + fixed + shipping)", inr(c.fees)],
+    ["– GST on fees", inr(c.feesGst)],
+    ["– Product cost", inr(c.cost)],
+    ["– Packaging", inr(c.pack)],
+    ["– GST payable (net of credit)", inr(c.gstPayable)],
+    ["= Profit on a delivered order", inr(c.netOnDelivered)],
+    ["– Return loss (expected, " + (c.r*100).toFixed(0) + "% returns)", inr(c.r*(c.netOnDelivered + c.returnLoss))],
+    ["– Ads per order", inr(c.ads)],
+  ];
+  $("break").innerHTML = rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join("") +
+    `<tr class="total"><td>Expected profit / order</td><td class="${c.profit>=0?'good':'bad'}">${inr(c.profit)}</td></tr>`;
+
+  const be = priceFor(0), tp = priceFor(n("target"));
+  $("be").textContent = be === null ? "Possible nahi" : inr(be);
+  $("tp").textContent = tp === null ? "Possible nahi" : inr(tp);
+  $("monthly").textContent = inr(c.profit * n("qty"));
+
+  const tips = [];
+  if (c.profit < 0) tips.push("Is price par aap har order par loss kar rahe ho. Price badhao ya cost kam karo.");
+  if (c.r*100 >= 20) tips.push("Return rate 20% se upar hai. Photos aur size chart behtar karne se returns kam hote hain.");
+  if (sp && (c.fees + c.feesGst)/sp > 0.25) tips.push("Fees aur shipping price ka 25% se zyada kha rahe hain. Halka packaging ya alag weight slab dekho.");
+  if (c.profit >= 0 && sp && c.profit/sp < 0.1) tips.push("Margin 10% se kam hai. Ek chhota sa return ya ads ka kharcha profit khatam kar sakta hai.");
+  if (!tips.length) tips.push("Numbers theek lag rahe hain. Real orders ke baad return rate aur ads cost update karte raho.");
+  $("tips").innerHTML = tips.map(t => "• " + t).join("<br>");
+
+  renderInsights(c, sp);
+
+  try { localStorage.setItem(KEY, JSON.stringify(collect())); } catch(e){}
+}
+
+function renderInsights(c, sp){
+  const net = c.netOnDelivered;
+  const retLoss = c.r * (net + c.returnLoss);
+  const segs = [
+    ["Product cost", c.cost, "#6366f1"],
+    ["Packaging", c.pack, "#8b5cf6"],
+    ["Marketplace fees + GST", c.fees + c.feesGst, "#f59e0b"],
+    ["GST payable", c.gstPayable, "#06b6d4"],
+    ["Returns se nuksaan", retLoss, "#ef4444"],
+    ["Ads", c.ads, "#ec4899"],
+    ["Aapka profit", Math.max(c.profit, 0), "#10b981"]
+  ];
+  const total = segs.reduce((a, s) => a + Math.max(s[1], 0), 0);
+  if (!total){
+    $("flowbar").innerHTML = ""; $("flowlegend").innerHTML = "";
+  } else {
+    $("flowbar").innerHTML = segs.filter(s => s[1] > 0)
+      .map(s => `<div title="${s[0]}" style="width:${(s[1]/total*100).toFixed(2)}%;background:${s[2]}"></div>`).join("");
+    $("flowlegend").innerHTML = segs.map(s =>
+      `<div><span><span class="dot" style="background:${s[2]}"></span>${s[0]}</span><span>${inr(Math.max(s[1],0))} (${(Math.max(s[1],0)/total*100).toFixed(0)}%)</span></div>`).join("");
+  }
+  const fn = $("flownote");
+  if (c.profit < 0){ fn.style.display = "block"; fn.textContent = "Kharche selling price se " + inr(-c.profit) + " zyada hain, isliye profit ki jagah loss hai."; }
+  else fn.style.display = "none";
+
+  // Break-even return rate: profit falls in a straight line as returns rise.
+  const base = net - c.ads, denom = net + c.returnLoss;
+  let be = 0;
+  if (base > 0) be = denom > 0 ? Math.min(base / denom, 1) * 100 : 100;
+  $("berr").textContent = base <= 0 ? "Returns se pehle hi loss" : be.toFixed(1) + "% returns tak safe";
+  $("berrnote").textContent = base <= 0 ? "Delivered order par bhi profit nahi bacha. Price badhao ya cost kam karo."
+    : "Aapka abhi ka return rate " + (c.r*100).toFixed(0) + "% hai. Isse upar profit zero ya loss ho jata hai.";
+
+  const cur = Math.round(c.r*100);
+  const rates = [0, 10, 20, 30, 40, 50];
+  if (!rates.includes(cur)) rates.push(cur);
+  rates.sort((a, b) => a - b);
+  $("stress").innerHTML = "<tr><th>Return rate</th><th>Profit / order</th><th>Margin</th></tr>" +
+    rates.map(rt => { const x = calc(sp, rt/100);
+      return `<tr class="${rt===cur?'cur':''}"><td>${rt}%${rt===cur?' (abhi)':''}</td><td class="${x.profit>=0?'good':'bad'}">${inr(x.profit)}</td><td>${sp?(x.profit/sp*100).toFixed(1)+'%':'–'}</td></tr>`; }).join("");
+
+  const steps = [-10, -5, 0, 5, 10, 20];
+  $("ladder").innerHTML = "<tr><th>Price</th><th>Profit / order</th><th>Margin</th></tr>" +
+    steps.map(st => { const p = Math.round(sp * (1 + st/100)); const x = calc(p);
+      return `<tr class="${st===0?'cur':''}"><td>${inr(p)} (${st>0?'+':''}${st}%)</td><td class="${x.profit>=0?'good':'bad'}">${inr(x.profit)}</td><td>${p?(x.profit/p*100).toFixed(1)+'%':'–'}</td></tr>`; }).join("");
+}
+
+const FIELDS = ["mp","sp","cost","pack","ads","comm","fixed","ship","ret","retcost","feegst","gstrate","target","qty"];
+function collect(){
+  const o = {}; FIELDS.forEach(f => o[f] = $(f).value); o.gstreg = $("gstreg").checked; return o;
+}
+
+function init(){
+  applyPreset();
+  try {
+    const s = JSON.parse(localStorage.getItem(KEY) || "null");
+    if (s){ FIELDS.forEach(f => { if (s[f] !== undefined) $(f).value = s[f]; }); $("gstreg").checked = !!s.gstreg; }
+  } catch(e){}
+  $("mp").addEventListener("change", () => { applyPreset(); render(); });
+  FIELDS.concat(["gstreg"]).forEach(f => $(f).addEventListener("input", render));
+  $("gstreg").addEventListener("change", render);
+  render();
+}
+init();
+</script>
+</body>
+</html>
